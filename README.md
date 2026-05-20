@@ -134,3 +134,18 @@ pytest tests/ -v
 ## License
 
 MIT
+
+
+## Ecosystem
+
+Part of the [SuperInstance](https://github.com/SuperInstance) ecosystem:
+
+| Package | Description |
+|---------|-------------|
+| [plato-core](https://github.com/SuperInstance/plato-core) | Base types + mesh registry |
+| [tensor-spline](https://github.com/SuperInstance/tensor-spline) | SplineLinear neural compression |
+| [eisenstein-embed](https://github.com/SuperInstance/eisenstein-embed) | 5-layer matching cascade |
+| [plato-training](https://github.com/SuperInstance/plato-training) | Training monolith |
+| [device-router](https://github.com/SuperInstance/device-router) | Heterogeneous compute routing |
+| [triplet-miner](https://github.com/SuperInstance/triplet-miner) | Git-powered contrastive data |
+| [micro-onnx](https://github.com/SuperInstance/micro-onnx) | ONNX export + benchmark |
