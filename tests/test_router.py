@@ -4,6 +4,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from device_router import DeviceRouter, RoutingStrategy
 from device_router.strategies import RoutingDecision
+from device_router.exceptions import RoutingError
 
 
 class TestDetectWithoutDeps:
@@ -191,6 +192,68 @@ class TestDeviceCapability:
         # Should still route to CPU
         decision = router.route(model_size=100_000_000, batch_size=32)
         assert decision.device == "cpu"
+
+
+class TestStatusAlias:
+    """Test status() alias."""
+
+    def test_status_equals_overview(self):
+        router = DeviceRouter()
+        router.detect()
+        assert router.status() == router.overview()
+
+
+class TestInputValidation:
+    """Test that invalid inputs raise RoutingError."""
+
+    def test_negative_model_size_raises(self):
+        router = DeviceRouter()
+        router.detect()
+        with pytest.raises(RoutingError, match="model_size"):
+            router.route(model_size=-1)
+
+    def test_zero_batch_size_raises(self):
+        router = DeviceRouter()
+        router.detect()
+        with pytest.raises(RoutingError, match="batch_size"):
+            router.route(model_size=100, batch_size=0)
+
+    def test_negative_batch_size_raises(self):
+        router = DeviceRouter()
+        router.detect()
+        with pytest.raises(RoutingError, match="batch_size"):
+            router.route(model_size=100, batch_size=-5)
+
+    def test_invalid_precision_raises(self):
+        router = DeviceRouter()
+        router.detect()
+        with pytest.raises(RoutingError, match="precision"):
+            router.route(model_size=100, precision="bfloat16")
+
+    def test_valid_precisions_accepted(self):
+        router = DeviceRouter()
+        router.detect()
+        for p in ("fp32", "fp16", "bf16", "int8"):
+            decision = router.route(model_size=100, precision=p)
+            assert decision.precision == p
+
+
+class TestCustomExceptions:
+    """Test custom exception hierarchy."""
+
+    def test_routing_error_is_base(self):
+        from device_router.exceptions import RoutingError, DeviceRouterError
+        assert issubclass(RoutingError, DeviceRouterError)
+
+    def test_detection_error_is_base(self):
+        from device_router.exceptions import DetectionError, DeviceRouterError
+        assert issubclass(DetectionError, DeviceRouterError)
+
+    def test_exceptions_importable_from_package(self):
+        from device_router import DeviceRouterError, RoutingError, DetectionError
+        assert DeviceRouterError is not None
+        assert RoutingError is not None
+        assert DetectionError is not None
 
 
 class TestMeshRegistration:

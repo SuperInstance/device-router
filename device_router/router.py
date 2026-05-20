@@ -4,6 +4,7 @@ import logging
 from dataclasses import asdict
 from typing import Any, Optional
 
+from device_router.exceptions import DeviceRouterError, RoutingError, DetectionError
 from device_router.detectors import detect_cuda, detect_directml, detect_cpu, detect_npu
 from device_router.strategies import RoutingStrategy, RoutingDecision
 
@@ -40,6 +41,10 @@ class DeviceRouter:
         self._cpu = detect_cpu()
         self._npu = detect_npu()
         self._detected = True
+        return self.overview()
+
+    def status(self) -> dict[str, Any]:
+        """Alias for overview()."""
         return self.overview()
 
     def overview(self) -> dict[str, Any]:
@@ -100,12 +105,20 @@ class DeviceRouter:
         if not self._detected:
             self.detect()
 
-        # Input validation
-        model_size = max(0, int(model_size))
-        batch_size = max(1, int(batch_size))
+        # Input validation with explicit errors
+        if model_size < 0:
+            raise RoutingError(f"model_size must be non-negative, got {model_size}")
+        model_size = int(model_size)
+
+        if batch_size < 1:
+            raise RoutingError(f"batch_size must be >= 1, got {batch_size}")
+        batch_size = int(batch_size)
+
         precision = precision.lower() if isinstance(precision, str) else "fp32"
         if precision not in ("fp32", "fp16", "bf16", "int8"):
-            precision = "fp32"
+            raise RoutingError(
+                f"Invalid precision '{precision}'. Must be one of: fp32, fp16, bf16, int8"
+            )
 
         # ONNX models → CPU (most optimized path)
         if is_onnx:

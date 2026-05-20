@@ -1,5 +1,11 @@
 # device-router
 
+[![PyPI version](https://img.shields.io/pypi/v/device-router.svg)](https://pypi.org/project/device-router/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
+[![Status: Beta](https://img.shields.io/badge/status-beta-orange.svg)](https://pypi.org/project/device-router/)
+
 > Heterogeneous compute router — auto-detect CUDA, iGPU, CPU, NPU and route ML workloads optimally.
 
 Modern laptops and workstations have **multiple compute units**: a discrete GPU (CUDA), an integrated GPU (iGPU/DirectML), a Neural Processing Unit (NPU), and the CPU. Most ML frameworks pick one device and stick with it. **That's wasteful.**
