@@ -1,0 +1,17 @@
+psutil>=5.0
+
+[all]
+torch
+torch-directml
+
+[cuda]
+torch
+
+[dev]
+pytest>=7.0
+numpy
+
+[directml]
+torch-directml
+
+[npu]
