@@ -100,6 +100,13 @@ class DeviceRouter:
         if not self._detected:
             self.detect()
 
+        # Input validation
+        model_size = max(0, int(model_size))
+        batch_size = max(1, int(batch_size))
+        precision = precision.lower() if isinstance(precision, str) else "fp32"
+        if precision not in ("fp32", "fp16", "bf16", "int8"):
+            precision = "fp32"
+
         # ONNX models → CPU (most optimized path)
         if is_onnx:
             return RoutingDecision(

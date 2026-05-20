@@ -1,0 +1,11 @@
+{
+  "name": "@superinstance/device-router",
+  "version": "0.1.0",
+  "description": "Heterogeneous compute router — auto-detect CUDA, iGPU, CPU, NPU and route ML workloads optimally",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "keywords": ["cuda", "gpu", "device-routing", "heterogeneous-compute", "ml", "superinstance"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/SuperInstance/device-router.git" },
+  "files": ["src/"]
+}
