@@ -1,6 +1,7 @@
 """DeviceRouter — routes ML workloads to the optimal compute device."""
 
 import logging
+import threading
 from dataclasses import asdict
 from typing import Any, Optional
 
@@ -30,18 +31,20 @@ class DeviceRouter:
         self._cpu: dict = {}
         self._npu: dict = {}
         self._detected = False
+        self._lock = threading.RLock()
 
     def detect(self) -> dict[str, Any]:
         """Detect all available compute devices.
 
         Returns overview dict with keys: cuda, cpu, directml, npu.
         """
-        self._cuda = detect_cuda()
-        self._directml = detect_directml()
-        self._cpu = detect_cpu()
-        self._npu = detect_npu()
-        self._detected = True
-        return self.overview()
+        with self._lock:
+            self._cuda = detect_cuda()
+            self._directml = detect_directml()
+            self._cpu = detect_cpu()
+            self._npu = detect_npu()
+            self._detected = True
+            return self.overview()
 
     def status(self) -> dict[str, Any]:
         """Alias for overview()."""
@@ -52,7 +55,8 @@ class DeviceRouter:
         if not self._detected:
             self.detect()
 
-        return {
+        with self._lock:
+            return {
             "cuda": {k: v for k, v in self._cuda.items() if k != "devices"} if self._cuda else {},
             "cpu": self._cpu,
             "igpu": {
@@ -60,25 +64,28 @@ class DeviceRouter:
                 "device_name": self._directml.get("device_name"),
             },
             "npu": self._npu,
-        }
+            }
 
     @property
     def cuda_available(self) -> bool:
         if not self._detected:
             self.detect()
-        return self._cuda.get("available", False)
+        with self._lock:
+            return self._cuda.get("available", False)
 
     @property
     def directml_available(self) -> bool:
         if not self._detected:
             self.detect()
-        return self._directml.get("available", False)
+        with self._lock:
+            return self._directml.get("available", False)
 
     @property
     def cpu_info(self) -> dict:
         if not self._detected:
             self.detect()
-        return self._cpu
+        with self._lock:
+            return self._cpu
 
     def route(
         self,
